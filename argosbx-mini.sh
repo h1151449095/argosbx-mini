@@ -425,11 +425,19 @@ ins
 # 删除原版 agsbx 快捷命令，避免冲突
 rm -f ~/bin/agsbx ~/bin/mt
 
-# 创建 mt 快捷方式（复制自身）
+# 创建 mt 快捷方式
 SCRIPT_PATH="$HOME/bin/mt"
 mkdir -p "$HOME/bin"
-cp "$0" "$SCRIPT_PATH"
+cat > "$SCRIPT_PATH" <<'MTEOF'
+#!/bin/sh
+exec /bin/sh "$HOME/.argosbx-mini.sh" "$@"
+MTEOF
 chmod +x "$SCRIPT_PATH"
+
+# 保存精简版脚本本体
+CPATH="$HOME/.argosbx-mini.sh"
+cp "$0" "$CPATH" 2>/dev/null || true
+chmod +x "$CPATH"
 
 # bashrc 配置
 [ -f ~/.bashrc ] || touch ~/.bashrc

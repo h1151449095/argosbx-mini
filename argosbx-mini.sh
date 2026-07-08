@@ -84,7 +84,21 @@ v6dq=$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k https://ip.fm | sed -n
 
 # --- 内核更新 ---
 upxray(){
-url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"; out="$HOME/agsbx/xray"; (command -v curl >/dev/null 2>&1 && curl -Lo "$out" -# --retry 2 "$url") || (command -v wget>/dev/null 2>&1 && timeout 3 wget -O "$out" --tries=2 "$url")
+url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"; out="$HOME/agsbx/xray"
+# 多镜像源，国内友好
+for mirror in "https://ghproxy.com/https://github.com" "https://mirror.ghproxy.com/https://github.com"; do
+    fullurl="${mirror}/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"
+    echo "正在下载 Xray 内核（尝试镜像源）..."
+    if (command -v curl >/dev/null 2>&1 && curl -Lo "$out" --connect-timeout 15 --max-time 120 -# "$fullurl" 2>/dev/null && chmod +x "$out" && [ -s "$out" ]); then
+        echo "下载成功"
+        break
+    fi
+done
+# 最后再试一次直连
+if [ ! -s "$out" ]; then
+    (command -v curl >/dev/null 2>&1 && curl -Lo "$out" --connect-timeout 15 --max-time 120 -# --retry 3 "$url" 2>/dev/null && chmod +x "$out") || \
+    (command -v wget >/dev/null 2>&1 && timeout 120 wget -O "$out" --tries=3 "$url" 2>/dev/null && chmod +x "$out")
+fi
 chmod +x "$HOME/agsbx/xray"
 sbcore=$("$HOME/agsbx/xray" version 2>/dev/null | awk '/^Xray/{print $2}')
 echo "已安装Xray正式版内核：$sbcore"

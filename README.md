@@ -90,8 +90,10 @@
 直接把下面这行代码复制到终端（SSH）里回车：
 
 ```bash
-bash <(curl -Ls https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh)
+vlpt=yes bash <(curl -Ls https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh)
 ```
+
+> ⚠️ **注意：** 必须加 `vlpt=yes`，否则脚本会提示 "未安装" 并退出。
 
 **它会做什么？**
 

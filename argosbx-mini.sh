@@ -22,7 +22,7 @@ fi
 
 # --- 环境变量 ---
 export uuid=${uuid:-''}
-export port_vl_re=${vlpt:-''}
+export port_vl_re=${port_vl_re:-''}
 export ym_vl_re=${reym:-''}
 export oap=${oap:-''}
 
@@ -340,63 +340,8 @@ public_key_x=$(cat "$HOME/agsbx/xrk/public_key" 2>/dev/null)
 short_id_x=$(cat "$HOME/agsbx/xrk/short_id" 2>/dev/null)
 port_vl_re=$(cat "$HOME/agsbx/port_vl_re")
 
-echo "*********************************************************"
-echo "*********************************************************"
-echo "Argosbx-mini 输出节点配置如下："
-echo
-echo "💣【 Vless-tcp-reality-vision 】节点信息如下："
 vl_link="vless://$uuid@$server_ip:$port_vl_re?encryption=none&flow=xtls-rprx-vision&security=reality&sni=$ym_vl_re&fp=chrome&pbk=$public_key_x&sid=$short_id_x&type=tcp&headerType=none#${sxname}vl-reality-vision-$hostname"
 echo "$vl_link"
-
-# Sing-box 兼容格式
-cat <<EOF
-    {
-      "type": "vless",
-      "tag": "${sxname}vless-$hostname",
-      "server": "$server_ip",
-      "server_port": $port_vl_re,
-      "uuid": "$uuid",
-      "flow": "xtls-rprx-vision",
-      "tls": {
-        "enabled": true,
-        "server_name": "$ym_vl_re",
-        "utls": {
-          "enabled": true,
-          "fingerprint": "chrome"
-        },
-      "reality": {
-          "enabled": true,
-          "public_key": "$public_key_x",
-          "short_id": "$short_id_x"
-        }
-      }
-    },
-EOF
-
-# Clash 格式
-cat <<EOF
-- name: ${sxname}vless-reality-vision-$hostname               
-  type: vless
-  server: $server_ip                          
-  port: $port_vl_re                                
-  uuid: $uuid   
-  network: tcp
-  udp: true
-  tls: true
-  flow: xtls-rprx-vision
-  servername: $ym_vl_re                 
-  reality-opts: 
-    public-key: $public_key_x    
-    short-id: $short_id_x                      
-  client-fingerprint: chrome
-EOF
-
-echo
-echo "---------------------------------------------------------"
-echo "聚合节点信息：请运行 cat $HOME/agsbx/xr.json 查看完整配置"
-echo "========================================================="
-echo "相关快捷方式如下：(首次安装成功后需重连SSH，agsbx快捷方式才可生效)"
-showmode
 }
 
 # ============================================================

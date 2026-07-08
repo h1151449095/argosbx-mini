@@ -81,19 +81,15 @@ v6dq=$( (command -v curl >/dev/null 2>&1 && curl -s6m5 -k https://ip.fm | sed -n
 # --- 内核更新 ---
 upxray(){
 url="https://github.com/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"; out="$HOME/agsbx/xray"
-# 多镜像源，国内友好
-for mirror in "https://ghproxy.com/https://github.com" "https://mirror.ghproxy.com/https://github.com"; do
-    fullurl="${mirror}/yonggekkk/argosbx/releases/download/argosbx/xray-$cpu"
-    echo "正在下载 Xray 内核（尝试镜像源）..."
-    if (command -v curl >/dev/null 2>&1 && curl -Lo "$out" --connect-timeout 15 --max-time 120 -# "$fullurl" 2>/dev/null && chmod +x "$out" && [ -s "$out" ]); then
-        echo "下载成功"
-        break
-    fi
-done
-# 最后再试一次直连
-if [ ! -s "$out" ]; then
-    (command -v curl >/dev/null 2>&1 && curl -Lo "$out" --connect-timeout 15 --max-time 120 -# --retry 3 "$url" 2>/dev/null && chmod +x "$out") || \
-    (command -v wget >/dev/null 2>&1 && timeout 120 wget -O "$out" --tries=3 "$url" 2>/dev/null && chmod +x "$out")
+echo "正在下载 Xray 内核..."
+if (command -v curl >/dev/null 2>&1 && curl -Lo "$out" -# --retry 3 --connect-timeout 30 --max-time 300 "$url" 2>/dev/null && chmod +x "$out" && [ -s "$out" ] && file "$out" | grep -qv 'HTML'); then
+    echo "下载成功"
+elif (command -v wget >/dev/null 2>&1 && timeout 300 wget -O "$out" --tries=3 "$url" 2>/dev/null && chmod +x "$out" && [ -s "$out" ] && file "$out" | grep -qv 'HTML'); then
+    echo "下载成功"
+else
+    echo "下载失败，尝试备用源..."
+    alturl="https://github.com/XTLS/Xray-core/releases/latest/download/$cpu-xray-linux-$([ "$cpu" = "arm64" ] && echo "arm64" || echo "amd64").zip"
+    curl -Lo /tmp/xray.zip -# --retry 3 --connect-timeout 30 --max-time 300 "$alturl" 2>/dev/null && unzip -o /tmp/xray.zip -d /tmp/xray_extracted 2>/dev/null && mv /tmp/xray_extracted/xray "$out" && chmod +x "$out" && rm -rf /tmp/xray.zip /tmp/xray_extracted
 fi
 chmod +x "$HOME/agsbx/xray"
 sbcore=$("$HOME/agsbx/xray" version 2>/dev/null | awk '/^Xray/{print $2}')
@@ -103,10 +99,13 @@ echo "已安装Xray正式版内核：$sbcore"
 # --- UUID 管理 ---
 insuuid(){
 if [ -z "$uuid" ] && [ ! -e "$HOME/agsbx/uuid" ]; then
-if [ -e "$HOME/agsbx/xray" ]; then
-uuid=$("$HOME/agsbx/xray" uuid)
-fi
-echo "$uuid" > "$HOME/agsbx/uuid"
+    if [ -e "$HOME/agsbx/xray" ] && file "$HOME/agsbx/xray" | grep -qv 'HTML'; then
+        uuid=$("$HOME/agsbx/xray" uuid 2>/dev/null)
+    fi
+    if [ -z "$uuid" ]; then
+        uuid=$(cat /proc/sys/kernel/random/uuid 2>/dev/null)
+    fi
+    echo "$uuid" > "$HOME/agsbx/uuid"
 elif [ -n "$uuid" ]; then
 echo "$uuid" > "$HOME/agsbx/uuid"
 fi
@@ -138,10 +137,16 @@ fi
 echo "$ym_vl_re" > "$HOME/agsbx/ym_vl_re"
 echo "Reality域名：$ym_vl_re"
 if [ ! -e "$HOME/agsbx/xrk/private_key" ]; then
-key_pair=$("$HOME/agsbx/xray" x25519)
-private_key=$(echo "$key_pair" | awk -F':' '/PrivateKey/ {print $2}' | xargs)
-public_key=$(echo "$key_pair" | awk -F':' '/Password/ {print $2}' | xargs)
-short_id=$(date +%s%N | sha256sum | cut -c 1-8)
+if [ -e "$HOME/agsbx/xray" ] && file "$HOME/agsbx/xray" | grep -qv 'HTML'; then
+    key_pair=$("$HOME/agsbx/xray" x25519 2>/dev/null)
+    private_key=$(echo "$key_pair" | awk -F':' '/PrivateKey/ {print $2}' | xargs)
+    public_key=$(echo "$key_pair" | awk -F':' '/Password/ {print $2}' | xargs)
+else
+    # Xray 坏了，用 openssl 生成
+    private_key=$(openssl ecparam -genkey -name prime256v1 2>/dev/null | openssl ec -outform PEM 2>/dev/null | base64 | tr -d '\n')
+    public_key=$(openssl ecparam -genkey -name prime256v1 2>/dev/null | openssl ec -pubout 2>/dev/null | base64 | tr -d '\n')
+fi
+short_id=$(head -c 4 /dev/urandom | xxd -p)
 echo "$private_key" > "$HOME/agsbx/xrk/private_key"
 echo "$public_key" > "$HOME/agsbx/xrk/public_key"
 echo "$short_id" > "$HOME/agsbx/xrk/short_id"

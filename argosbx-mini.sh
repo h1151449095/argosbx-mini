@@ -369,6 +369,17 @@ fi
 rm -rf sbx_update "$HOME/agsbx"
 echo "卸载完成"
 showmode
+
+# 重新创建 agsbx 快捷命令
+SCRIPT_PATH="$HOME/bin/agsbx"
+mkdir -p "$HOME/bin"
+cat > "$SCRIPT_PATH" <<'SCRIPTEOF'
+#!/bin/sh
+export LANG=en_US.UTF-8
+SCRIPTEOF
+tail -n +3 "$0" >> "$SCRIPT_PATH"
+chmod +x "$SCRIPT_PATH"
+
 exit
 elif [ "$1" = "rep" ]; then
 # 重置

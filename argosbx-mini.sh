@@ -29,12 +29,12 @@ agsbxurl="https://raw.githubusercontent.com/yonggekkk/argosbx/main/argosbx.sh"
 showmode(){
 echo "Argosbx-mini 脚本 — 仅保留 Vless-tcp-reality-vision"
 echo "主脚本：bash <(curl -Ls https://raw.githubusercontent.com/yonggekkk/argosbx-mini/main/argosbx-mini.sh) 或 bash <(wget -qO- https://raw.githubusercontent.com/yonggekkk/argosbx-mini/main/argosbx-mini.sh)"
-echo "显示节点信息命令：mt list 【或者】 主脚本 list"
-echo "重置变量组命令：自定义各种协议变量组 mt rep 【或者】 主脚本 rep"
-echo "更新Xray内核命令：mt upx 【或者】 主脚本 upx"
-echo "重启脚本命令：mt res 【或者】 主脚本 res"
-echo "卸载脚本命令：mt del 【或者】 主脚本 del"
-echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 mt list 【或者】 ippz=4或6 主脚本 list"
+echo "显示节点信息命令：agsbx list 【或者】 主脚本 list"
+echo "重置变量组命令：自定义各种协议变量组 agsbx rep 【或者】 主脚本 rep"
+echo "更新Xray内核命令：agsbx upx 【或者】 主脚本 upx"
+echo "重启脚本命令：agsbx res 【或者】 主脚本 res"
+echo "卸载脚本命令：agsbx del 【或者】 主脚本 del"
+echo "双栈VPS显示IPv4/IPv6节点配置命令：ippz=4或6 agsbx list 【或者】 ippz=4或6 主脚本 list"
 echo "---------------------------------------------------------"
 echo
 }
@@ -422,22 +422,19 @@ fi
 
 ins
 
-# 删除原版 agsbx 快捷命令，避免冲突
-rm -f ~/bin/agsbx ~/bin/mt
+# 删除原版快捷命令
+rm -f ~/bin/agsbx
 
-# 创建 mt 快捷方式
-SCRIPT_PATH="$HOME/bin/mt"
+# 创建 agsbx 快捷方式（内嵌完整脚本）
+SCRIPT_PATH="$HOME/bin/agsbx"
 mkdir -p "$HOME/bin"
-cat > "$SCRIPT_PATH" <<'MTEOF'
+cat > "$SCRIPT_PATH" <<'SCRIPTEOF'
 #!/bin/sh
-exec /bin/sh "$HOME/.argosbx-mini.sh" "$@"
-MTEOF
+export LANG=en_US.UTF-8
+SCRIPTEOF
+# 追加脚本主体（跳过前两行 shebang + export）
+tail -n +3 "$0" >> "$SCRIPT_PATH"
 chmod +x "$SCRIPT_PATH"
-
-# 保存精简版脚本本体
-CPATH="$HOME/.argosbx-mini.sh"
-cp "$0" "$CPATH" 2>/dev/null || true
-chmod +x "$CPATH"
 
 # bashrc 配置
 [ -f ~/.bashrc ] || touch ~/.bashrc

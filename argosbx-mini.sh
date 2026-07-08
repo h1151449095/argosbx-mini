@@ -423,12 +423,12 @@ fi
 ins
 
 # 删除原版 agsbx 快捷命令，避免冲突
-rm -f ~/bin/agsbx
+rm -f ~/bin/agsbx ~/bin/mt
 
-# 创建 mt 快捷方式
+# 创建 mt 快捷方式（复制自身）
 SCRIPT_PATH="$HOME/bin/mt"
 mkdir -p "$HOME/bin"
-(command -v curl >/dev/null 2>&1 && curl -sL "$agsbxurl" -o "$SCRIPT_PATH") || (command -v wget -qO "$SCRIPT_PATH" "$agsbxurl")
+cp "$0" "$SCRIPT_PATH"
 chmod +x "$SCRIPT_PATH"
 
 # bashrc 配置

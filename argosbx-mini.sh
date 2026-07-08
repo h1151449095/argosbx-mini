@@ -422,6 +422,9 @@ fi
 
 ins
 
+# 删除原版 agsbx 快捷命令，避免冲突
+rm -f ~/bin/agsbx
+
 # 创建 agsbx 快捷方式
 SCRIPT_PATH="$HOME/bin/agsbx"
 mkdir -p "$HOME/bin"

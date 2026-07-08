@@ -373,11 +373,8 @@ showmode
 # 重新创建 agsbx 快捷命令
 SCRIPT_PATH="$HOME/bin/agsbx"
 mkdir -p "$HOME/bin"
-cat > "$SCRIPT_PATH" <<'SCRIPTEOF'
-#!/bin/sh
-export LANG=en_US.UTF-8
-SCRIPTEOF
-tail -n +3 "$0" >> "$SCRIPT_PATH"
+curl -sL "https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh" -o "$SCRIPT_PATH" 2>/dev/null || \
+wget -qO "$SCRIPT_PATH" "https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh" 2>/dev/null
 chmod +x "$SCRIPT_PATH"
 
 exit
@@ -433,18 +430,17 @@ fi
 
 ins
 
-# 删除原版快捷命令
-rm -f ~/bin/agsbx
-
-# 创建 agsbx 快捷方式（内嵌完整脚本）
+# 创建 agsbx 快捷方式
 SCRIPT_PATH="$HOME/bin/agsbx"
 mkdir -p "$HOME/bin"
-cat > "$SCRIPT_PATH" <<'SCRIPTEOF'
-#!/bin/sh
-export LANG=en_US.UTF-8
-SCRIPTEOF
-# 追加脚本主体（跳过前两行 shebang + export）
-tail -n +3 "$0" >> "$SCRIPT_PATH"
+# 直接写入脚本本体（用 sed 提取完整内容）
+sed '1,2d' "$0" > "$SCRIPT_PATH" 2>/dev/null || true
+# 如果 sed 失败（管道运行），改用 base64 编码方式
+if [ ! -s "$SCRIPT_PATH" ]; then
+    # 从 GitHub 拉取脚本本体
+    curl -sL "https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh" -o "$SCRIPT_PATH" 2>/dev/null || \
+    wget -qO "$SCRIPT_PATH" "https://raw.githubusercontent.com/h1151449095/argosbx-mini/main/argosbx-mini.sh" 2>/dev/null
+fi
 chmod +x "$SCRIPT_PATH"
 
 # bashrc 配置

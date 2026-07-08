@@ -6,18 +6,14 @@ export LANG=en_US.UTF-8
 # 基于 yonggekkk argosbx 魔改精简版
 # ============================================================
 
-# --- 协议开关：只有 vlpt (Vless-tcp-reality-vision) ---
-[ -z "${vlpt+x}" ] || vlp=yes
+# --- 默认启用 Vless-tcp-reality-vision ---
+vlp=yes
 
 # --- 检测是否已安装 ---
 if find /proc/*/exe -type l 2>/dev/null | grep -E '/proc/[0-9]+/exe' | xargs -r readlink 2>/dev/null | grep -Eq 'agsbx/(s|x)' || pgrep -f 'agsbx/(s|x)' >/dev/null 2>&1; then
     INSTALLED=yes
 else
     INSTALLED=no
-fi
-
-if [ "$INSTALLED" = "no" ]; then
-    [ "$1" = "del" ] || [ "$vlp" = yes ] || { echo "提示：未安装argosbx-mini，请在脚本前设置协议变量 vlpt=yes"; exit; }
 fi
 
 # --- 环境变量 ---

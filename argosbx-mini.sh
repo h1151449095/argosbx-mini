@@ -368,7 +368,6 @@ rm -f /etc/systemd/system/xr.service
 fi
 rm -rf sbx_update "$HOME/agsbx"
 echo "卸载完成"
-showmode
 
 # 重新创建 agsbx 快捷命令
 SCRIPT_PATH="$HOME/bin/agsbx"
